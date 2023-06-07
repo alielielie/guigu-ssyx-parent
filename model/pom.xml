@@ -41,6 +41,7 @@
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <scope>provided </scope>
+            <version>1.2.25</version>
         </dependency>
 
         <!--创建索引库的-->
