@@ -1,9 +1,18 @@
 package com.atguigu.ssyx.sys.controller;
 
 
-import org.springframework.web.bind.annotation.RequestMapping;
+import com.atguigu.ssyx.common.result.Result;
+import com.atguigu.ssyx.model.sys.RegionWare;
+import com.atguigu.ssyx.sys.service.RegionWareService;
+import com.atguigu.ssyx.vo.sys.RegionWareQueryVo;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mysql.cj.x.protobuf.Mysqlx;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.web.bind.annotation.*;
 
-import org.springframework.web.bind.annotation.RestController;
+import javax.annotation.Resource;
 
 /**
  * <p>
@@ -13,9 +22,47 @@ import org.springframework.web.bind.annotation.RestController;
  * @author zt
  * @since 2023-06-09
  */
+@Api(tags = "开通区域接口")
 @RestController
-@RequestMapping("/sys/region-ware")
+@RequestMapping("/admin/sys/regionWare")
+@CrossOrigin
 public class RegionWareController {
+
+    @Resource
+    private RegionWareService regionWareService;
+
+    //1 开通区域列表
+    @ApiOperation("开通区域列表")
+    @GetMapping("/{page}/{limit}")
+    public Result list(@PathVariable Long page, @PathVariable Long limit, RegionWareQueryVo regionWareQueryVo) {
+        Page<RegionWare> pageParam = new Page<>(page, limit);
+        IPage<RegionWare> pageModel = regionWareService.selectPageRegionWare(pageParam, regionWareQueryVo);
+        return Result.ok(pageModel);
+    }
+
+    //2 添加开通区域
+    @ApiOperation("添加开通区域")
+    @PostMapping("/save")
+    public Result addRegionWare(@RequestBody RegionWare regionWare) {
+        regionWareService.saveRegionWare(regionWare);
+        return Result.ok(null);
+    }
+
+    //3 删除开通区域
+    @ApiOperation("删除开通区域")
+    @DeleteMapping("/remove/{id}")
+    public Result remove(@PathVariable Long id) {
+        regionWareService.removeById(id);
+        return Result.ok(null);
+    }
+
+    //4 取消开通区域
+    @ApiOperation("取消开通区域")
+    @PostMapping("/updateStatus/{id}/{status}")
+    public Result updateStatus(@PathVariable Long id, @PathVariable Integer status) {
+        regionWareService.updateStatus(id, status);
+        return Result.ok(null);
+    }
 
 }
 
