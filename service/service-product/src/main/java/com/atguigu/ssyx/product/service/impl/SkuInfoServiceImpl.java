@@ -1,0 +1,194 @@
+package com.atguigu.ssyx.product.service.impl;
+
+import com.atguigu.ssyx.model.product.SkuAttrValue;
+import com.atguigu.ssyx.model.product.SkuImage;
+import com.atguigu.ssyx.model.product.SkuInfo;
+import com.atguigu.ssyx.model.product.SkuPoster;
+import com.atguigu.ssyx.product.mapper.SkuInfoMapper;
+import com.atguigu.ssyx.product.service.SkuAttrValueService;
+import com.atguigu.ssyx.product.service.SkuImageService;
+import com.atguigu.ssyx.product.service.SkuInfoService;
+import com.atguigu.ssyx.product.service.SkuPosterService;
+import com.atguigu.ssyx.vo.product.SkuInfoQueryVo;
+import com.atguigu.ssyx.vo.product.SkuInfoVo;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
+import javax.annotation.Resource;
+import java.util.List;
+
+/**
+ * <p>
+ * sku信息 服务实现类
+ * </p>
+ *
+ * @author zt
+ * @since 2023-06-11
+ */
+@Service
+public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo> implements SkuInfoService {
+
+    //sku图片
+    @Resource
+    private SkuImageService skuImageService;
+
+    //sku平台属性
+    @Resource
+    private SkuAttrValueService skuAttrValueService;
+
+    //sku海报
+    @Resource
+    private SkuPosterService skuPosterService;
+
+    @Override
+    public IPage<SkuInfo> selectPageSkuInfo(Page<SkuInfo> pageParam, SkuInfoQueryVo skuInfoQueryVo) {
+        String keyword = skuInfoQueryVo.getKeyword();
+        Long categoryId = skuInfoQueryVo.getCategoryId();
+        String skuType = skuInfoQueryVo.getSkuType();
+        LambdaQueryWrapper<SkuInfo> wrapper = new LambdaQueryWrapper<>();
+        if(!StringUtils.isEmpty(keyword)) {
+            wrapper.like(SkuInfo::getSkuName, keyword);
+        }
+        if(!StringUtils.isEmpty(categoryId)) {
+            wrapper.eq(SkuInfo::getCategoryId, categoryId);
+        }
+        if(!StringUtils.isEmpty(skuType)) {
+            wrapper.like(SkuInfo::getSkuType, skuType);
+        }
+        IPage<SkuInfo> skuInfoPage = baseMapper.selectPage(pageParam, wrapper);
+        return skuInfoPage;
+    }
+
+    @Override
+    public void saveSkuInfo(SkuInfoVo skuInfoVo) {
+        //1 添加sku基本信息
+        //SkuInfoVo--SkuInfo
+        SkuInfo skuInfo = new SkuInfo();
+        BeanUtils.copyProperties(skuInfoVo, skuInfo);
+        baseMapper.insert(skuInfo);
+        //2 保存sku海报
+        List<SkuPoster> skuPosterList = skuInfoVo.getSkuPosterList();
+        if(!CollectionUtils.isEmpty(skuPosterList)){
+            //遍历向每个海报对象添加商品skuid
+            for (SkuPoster skuPoster : skuPosterList) {
+                skuPoster.setSkuId(skuInfo.getId());
+            }
+            skuPosterService.saveBatch(skuPosterList);
+        }
+        //3 保存sku图片
+        List<SkuImage> skuImagesList = skuInfoVo.getSkuImagesList();
+        if(!CollectionUtils.isEmpty(skuImagesList)){
+            for (SkuImage skuImage : skuImagesList) {
+                skuImage.setSkuId(skuInfo.getId());
+            }
+            skuImageService.saveBatch(skuImagesList);
+        }
+        //4 保存sku平台
+        List<SkuAttrValue> skuAttrValueList = skuInfoVo.getSkuAttrValueList();
+        if(!CollectionUtils.isEmpty(skuAttrValueList)){
+            for (SkuAttrValue skuAttrValue : skuAttrValueList) {
+                skuAttrValue.setSkuId(skuInfo.getId());
+            }
+            skuAttrValueService.saveBatch(skuAttrValueList);
+        }
+    }
+
+    //根据id获取sku信息
+    @Override
+    public SkuInfoVo getSkuInfo(Long id) {
+        SkuInfoVo skuInfoVo = new SkuInfoVo();
+        //根据id查询sku基本信息
+        SkuInfo skuInfo = baseMapper.selectById(id);
+        //根据id查询商品图片列表信息
+        List<SkuImage> skuImageList = skuImageService.getImageListBySkuId(id);
+        //根据id查询商品海报列表
+        List<SkuPoster> skuPosterList = skuPosterService.getPosterListBySkuId(id);
+        //根据id查询商品属性信息列表
+        List<SkuAttrValue> attrValueList = skuAttrValueService.getAttrValueListBySkuId(id);
+        //封装所有数据，返回
+        BeanUtils.copyProperties(skuInfo, skuInfoVo);
+        skuInfoVo.setSkuImagesList(skuImageList);
+        skuInfoVo.setSkuPosterList(skuPosterList);
+        skuInfoVo.setSkuAttrValueList(attrValueList);
+        return skuInfoVo;
+    }
+
+    //修改sku信息
+    @Override
+    public void updateSkuInfo(SkuInfoVo skuInfoVo) {
+        //修改sku基本信息
+        SkuInfo skuInfo = new SkuInfo();
+        BeanUtils.copyProperties(skuInfoVo, skuInfo);
+        baseMapper.updateById(skuInfo);
+        Long skuId = skuInfoVo.getId();
+        //海报信息
+        LambdaQueryWrapper<SkuPoster> wrapperSkuPoster = new LambdaQueryWrapper<>();
+        wrapperSkuPoster.eq(SkuPoster::getSkuId, skuId);
+        skuPosterService.remove(wrapperSkuPoster);
+        List<SkuPoster> skuPosterList = skuInfoVo.getSkuPosterList();
+        if(!CollectionUtils.isEmpty(skuPosterList)){
+            //遍历向每个海报对象添加商品skuid
+            for (SkuPoster skuPoster : skuPosterList) {
+                skuPoster.setSkuId(skuId);
+            }
+            skuPosterService.saveBatch(skuPosterList);
+        }
+        //商品图片
+        skuImageService.remove(new LambdaQueryWrapper<SkuImage>().eq(SkuImage::getSkuId, skuId));
+        List<SkuImage> skuImagesList = skuInfoVo.getSkuImagesList();
+        if(!CollectionUtils.isEmpty(skuImagesList)){
+            for (SkuImage skuImage : skuImagesList) {
+                skuImage.setSkuId(skuId);
+            }
+            skuImageService.saveBatch(skuImagesList);
+        }
+        //商品属性
+        skuAttrValueService.remove(new LambdaQueryWrapper<SkuAttrValue>().eq(SkuAttrValue::getSkuId, skuId));
+        List<SkuAttrValue> skuAttrValueList = skuInfoVo.getSkuAttrValueList();
+        if(!CollectionUtils.isEmpty(skuAttrValueList)){
+            for (SkuAttrValue skuAttrValue : skuAttrValueList) {
+                skuAttrValue.setSkuId(skuId);
+            }
+            skuAttrValueService.saveBatch(skuAttrValueList);
+        }
+    }
+
+    //商品审核
+    @Override
+    public void check(Long skuId, Integer status) {
+        SkuInfo skuInfo = baseMapper.selectById(skuId);
+        skuInfo.setCheckStatus(status);
+        baseMapper.updateById(skuInfo);
+    }
+
+    //商品上下架
+    @Override
+    public void publish(Long skuId, Integer status) {
+        if(status == 1) { //上架
+            SkuInfo skuInfo = baseMapper.selectById(skuId);
+            skuInfo.setPublishStatus(status);
+            baseMapper.updateById(skuInfo);
+            //TODO 整合mq把数据同步到es里
+        } else { //下架
+            SkuInfo skuInfo = baseMapper.selectById(skuId);
+            skuInfo.setPublishStatus(status);
+            baseMapper.updateById(skuInfo);
+            //TODO 整合mq把数据同步到es里
+        }
+    }
+
+    //新人专享
+    @Override
+    public void isNewPerson(Long skuId, Integer status) {
+        SkuInfo skuInfoUp = new SkuInfo();
+        skuInfoUp.setId(skuId);
+        skuInfoUp.setIsNewPerson(status);
+        baseMapper.updateById(skuInfoUp);
+    }
+}
