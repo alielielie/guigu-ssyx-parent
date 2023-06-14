@@ -4,12 +4,10 @@ import com.atguigu.ssyx.model.product.Category;
 import com.atguigu.ssyx.model.product.SkuInfo;
 import com.atguigu.ssyx.product.service.CategoryService;
 import com.atguigu.ssyx.product.service.SkuInfoService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @BelongsProject: guigu-ssyx-parent
@@ -39,6 +37,25 @@ public class ProductInnerController {
     @GetMapping("/inner/getSkuInfo/{skuId}")
     public SkuInfo getSkuInfo(@PathVariable Long skuId) {
         return skuInfoService.getById(skuId);
+    }
+
+    //3 根据skuId列表得到sku信息列表
+    @PostMapping("/inner/findSkuInfoList")
+    public List<SkuInfo> findSkuInfoList(@RequestBody List<Long> skuIdList) {
+        System.out.println(skuIdList);
+        return skuInfoService.findSkuInfoList(skuIdList);
+    }
+
+    //4 根据关键字匹配sku列表
+    @GetMapping("/inner/findSkuInfoByKeyword/{keyword}")
+    public List<SkuInfo> findSkuInfoByKeyword(@PathVariable("keyword") String keyword) {
+        return skuInfoService.findSkuInfoByKeyword(keyword);
+    }
+
+    //5 根据分类id列表获取分类信息
+    @PostMapping("/inner/findCategoryList")
+    public List<Category> findCategoryList(@RequestBody List<Long> categoryIdList) {
+        return categoryService.listByIds(categoryIdList);
     }
 
 }

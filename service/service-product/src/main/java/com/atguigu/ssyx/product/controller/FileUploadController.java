@@ -23,7 +23,6 @@ import javax.annotation.Resource;
 @Api(tags = "文件上传接口")
 @RestController
 @RequestMapping("/admin/product")
-@CrossOrigin
 public class FileUploadController {
 
     @Resource
