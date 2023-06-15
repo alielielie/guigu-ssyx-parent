@@ -1,7 +1,11 @@
 package com.atguigu.ssyx.search.repository;
 
 import com.atguigu.ssyx.model.search.SkuEs;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
+
+import java.util.List;
 
 /**
  * @BelongsProject: guigu-ssyx-parent
@@ -11,4 +15,8 @@ import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
  * @Description:
  */
 public interface SkuRepository extends ElasticsearchRepository<SkuEs, Long> {
+
+    //获取爆款商品
+    Page<SkuEs> findByOrderByHotScoreDesc(Pageable pageable);
+
 }

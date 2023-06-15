@@ -1,6 +1,7 @@
 package com.atguigu.ssyx.search.controller;
 
 import com.atguigu.ssyx.common.result.Result;
+import com.atguigu.ssyx.model.search.SkuEs;
 import com.atguigu.ssyx.search.service.SkuService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @BelongsProject: guigu-ssyx-parent
@@ -36,6 +38,12 @@ public class SkuApiController {
     public Result lowerSku(@PathVariable Long skuId) {
         skuService.lowerSku(skuId);
         return Result.ok(null);
+    }
+
+    //获取爆款商品
+    @GetMapping("/inner/findHotSkuList")
+    public List<SkuEs> findHotSkuList() {
+        return skuService.findHotSkuList();
     }
 
 }

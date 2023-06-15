@@ -7,9 +7,13 @@ import com.atguigu.ssyx.model.product.SkuInfo;
 import com.atguigu.ssyx.model.search.SkuEs;
 import com.atguigu.ssyx.search.repository.SkuRepository;
 import com.atguigu.ssyx.search.service.SkuService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @BelongsProject: guigu-ssyx-parent
@@ -66,5 +70,17 @@ public class SkuServiceImpl implements SkuService {
     @Override
     public void lowerSku(Long skuId) {
         skuRepository.deleteById(skuId);
+    }
+
+    //获取爆款商品
+    @Override
+    public List<SkuEs> findHotSkuList() {
+        //find read get开头
+        //关联条件关键字
+        //0代表第一页
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<SkuEs> pageModel = skuRepository.findByOrderByHotScoreDesc(pageable);
+        List<SkuEs> skuEsList = pageModel.getContent();
+        return skuEsList;
     }
 }

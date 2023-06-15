@@ -1,5 +1,9 @@
 package com.atguigu.ssyx.search.service;
 
+import com.atguigu.ssyx.model.search.SkuEs;
+
+import java.util.List;
+
 /**
  * @BelongsProject: guigu-ssyx-parent
  * @BelongsPackage: com.atguigu.ssyx.search.service
@@ -14,4 +18,7 @@ public interface SkuService {
 
     //下架
     void lowerSku(Long skuId);
+
+    //获取爆款商品
+    List<SkuEs> findHotSkuList();
 }
