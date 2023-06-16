@@ -30,4 +30,7 @@ public interface ActivityInfoService extends IService<ActivityInfo> {
 
     //3 根据关键字查询匹配sku信息
     List<SkuInfo> findSkuInfoByKeyword(String keyword);
+
+    //根据skuId列表获取促销信息
+    Map<Long, List<String>> findActivity(List<Long> skuIdList);
 }

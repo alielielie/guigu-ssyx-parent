@@ -5,6 +5,7 @@ import com.atguigu.ssyx.activity.mapper.ActivityRuleMapper;
 import com.atguigu.ssyx.activity.mapper.ActivitySkuMapper;
 import com.atguigu.ssyx.activity.service.ActivityInfoService;
 import com.atguigu.ssyx.client.product.ProductFeignClient;
+import com.atguigu.ssyx.enums.ActivityType;
 import com.atguigu.ssyx.model.activity.ActivityInfo;
 import com.atguigu.ssyx.model.activity.ActivityRule;
 import com.atguigu.ssyx.model.activity.ActivitySku;
@@ -131,6 +132,49 @@ public class ActivityInfoServiceImpl extends ServiceImpl<ActivityInfoMapper, Act
             }
         }
         return findSkuList;
+    }
+
+    //根据skuId列表获取促销信息
+    @Override
+    public Map<Long, List<String>> findActivity(List<Long> skuIdList) {
+        Map<Long, List<String>> result = new HashMap<>();
+        //skuIdList遍历，得到每个skuId
+        skuIdList.forEach(skuId -> {
+            //根据skuId进行查询，查询sku对应的活动里面的规则列表
+            List<ActivityRule> activityRuleList = baseMapper.findActivityRule(skuId);
+            //数据封装，规则的名称
+            if(!CollectionUtils.isEmpty(activityRuleList)){
+                List<String> ruleList = new ArrayList<>();
+                //把规则的名称处理
+                for (ActivityRule activityRule : activityRuleList) {
+                    ruleList.add(this.getRuleDesc(activityRule));
+                }
+                result.put(skuId, ruleList);
+            }
+        });
+        return result;
+    }
+
+    //构造规则名称的方法
+    private String getRuleDesc(ActivityRule activityRule) {
+        ActivityType activityType = activityRule.getActivityType();
+        StringBuffer ruleDesc = new StringBuffer();
+        if (activityType == ActivityType.FULL_REDUCTION) {
+            ruleDesc
+                    .append("满")
+                    .append(activityRule.getConditionAmount())
+                    .append("元减")
+                    .append(activityRule.getBenefitAmount())
+                    .append("元");
+        } else {
+            ruleDesc
+                    .append("满")
+                    .append(activityRule.getConditionNum())
+                    .append("元打")
+                    .append(activityRule.getBenefitDiscount())
+                    .append("折");
+        }
+        return ruleDesc.toString();
     }
 
 

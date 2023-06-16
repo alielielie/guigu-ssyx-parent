@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.atguigu.ssyx.activity.mapper.ActivityInfoMapper">
+    <resultMap id="ActivityRuleMap" type="com.atguigu.ssyx.model.activity.ActivityRule" autoMapping="true"></resultMap>
     <!-- 如果之前参加过活动，而且活动正在进行中，排除商品 -->
     <select id="selectSkuIdListExist" resultType="java.lang.Long">
         SELECT sku.sku_id
@@ -17,5 +18,16 @@
         </where>
         AND
         NOW() BETWEEN info.start_time AND info.end_time
+    </select>
+    <!-- 根据skuId进行查询，查询sku对应的活动里面的规则列表 -->
+    <select id="findActivityRule" resultMap="ActivityRuleMap">
+        SELECT info.activity_type as activityType,
+               rule.id,rule.activity_id,rule.condition_amount,rule.condition_num,rule.benefit_amount,rule.benefit_discount
+        FROM activity_info info
+        INNER JOIN activity_sku sku on info.id=sku.activity_id
+        INNER JOIN activity_rule rule on info.id=rule.activity_id
+        where sku.sku_id=#{skuId}
+        AND NOW() BETWEEN info.start_time and info.end_time
+        ORDER BY rule.condition_amount DESC
     </select>
 </mapper>
