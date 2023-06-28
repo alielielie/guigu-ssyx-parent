@@ -5,6 +5,7 @@ import com.atguigu.ssyx.vo.activity.CouponRuleVo;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,4 +29,7 @@ public interface CouponInfoService extends IService<CouponInfo> {
 
     //5 添加优惠券规则数据
     void saveCouponRule(CouponRuleVo couponRuleVo);
+
+    //根据skuId和userId查询优惠券信息
+    List<CouponInfo> findCouponInfoList(Long skuId, Long userId);
 }

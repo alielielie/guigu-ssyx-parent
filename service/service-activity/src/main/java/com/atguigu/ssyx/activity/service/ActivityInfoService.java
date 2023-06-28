@@ -1,6 +1,7 @@
 package com.atguigu.ssyx.activity.service;
 
 import com.atguigu.ssyx.model.activity.ActivityInfo;
+import com.atguigu.ssyx.model.activity.ActivityRule;
 import com.atguigu.ssyx.model.product.SkuInfo;
 import com.atguigu.ssyx.vo.activity.ActivityRuleVo;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -23,7 +24,7 @@ public interface ActivityInfoService extends IService<ActivityInfo> {
     IPage<ActivityInfo> selectPage(Page<ActivityInfo> pageParam);
 
     //1 根据活动id获取活动规则数据
-    Map<String, Object> findActivityRuleList(Long id);
+    Map<String, Object> findActivityRuleList(Long activityId);
 
     //2 在活动里添加规则数据
     void saveActivityRule(ActivityRuleVo activityRuleVo);
@@ -33,4 +34,10 @@ public interface ActivityInfoService extends IService<ActivityInfo> {
 
     //根据skuId列表获取促销信息
     Map<Long, List<String>> findActivity(List<Long> skuIdList);
+
+    //根据skuId获取营销数据和优惠券数据
+    Map<String, Object> findActivityAndCoupon(Long skuId, Long userId);
+
+    //根据skuId获取活动规则数据
+    List<ActivityRule> findActivityRuleBySkuId(Long skuId);
 }

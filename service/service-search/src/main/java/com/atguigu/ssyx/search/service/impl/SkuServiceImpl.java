@@ -13,6 +13,7 @@ import com.atguigu.ssyx.vo.search.SkuEsQueryVo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -20,6 +21,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +43,9 @@ public class SkuServiceImpl implements SkuService {
 
     @Resource
     private ActivityFeignClient activityFeignClient;
+
+    @Resource
+    private RedisTemplate redisTemplate;
 
     //上架
     @Override
@@ -130,5 +135,22 @@ public class SkuServiceImpl implements SkuService {
             }
         }
         return pageModel;
+    }
+
+    //更新商品的热度
+    @Override
+    public void incrHotScore(Long skuId) {
+        String key = "hotScore";
+        //redis保存数据，每次+1
+        Double hotScore = redisTemplate.opsForZSet().incrementScore(key, "skuId:" + skuId, 1);
+        //规则
+        if(hotScore % 10 == 0) {
+            //更新es
+            Optional<SkuEs> optional = skuRepository.findById(skuId);
+            SkuEs skuEs = optional.get();
+            skuEs.setHotScore(Math.round(hotScore));
+            //save方法传的有id值就是更新，没有就是添加
+            skuRepository.save(skuEs);
+        }
     }
 }

@@ -123,4 +123,14 @@ public class CouponInfoServiceImpl extends ServiceImpl<CouponInfoMapper, CouponI
             couponRangeMapper.insert(couponRange);
         }
     }
+
+    //根据skuId和userId查询优惠券信息
+    @Override
+    public List<CouponInfo> findCouponInfoList(Long skuId, Long userId) {
+        //远程调用根据skuId获取到skuInfo信息
+        SkuInfo skuInfo = productFeignClient.getSkuInfo(skuId);
+        //根据条件查询：skuId+分类id+userId
+        List<CouponInfo> couponInfoList = baseMapper.selectCouponInfoList(skuId, skuInfo.getCategoryId(), userId);
+        return couponInfoList;
+    }
 }

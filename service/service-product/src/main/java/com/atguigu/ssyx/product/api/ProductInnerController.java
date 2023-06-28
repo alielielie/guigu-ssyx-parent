@@ -4,6 +4,7 @@ import com.atguigu.ssyx.model.product.Category;
 import com.atguigu.ssyx.model.product.SkuInfo;
 import com.atguigu.ssyx.product.service.CategoryService;
 import com.atguigu.ssyx.product.service.SkuInfoService;
+import com.atguigu.ssyx.vo.product.SkuInfoVo;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -69,6 +70,12 @@ public class ProductInnerController {
     public List<SkuInfo> findNewPersonSkuInfoList() {
         List<SkuInfo> list = skuInfoService.findNewPersonSkuInfoList();
         return list;
+    }
+
+    //8 根据skuId获取sku信息
+    @GetMapping("/inner/getSkuInfoVo/{skuId}")
+    public SkuInfoVo getSkuInfoVo(@PathVariable Long skuId) {
+        return skuInfoService.getSkuInfoVo(skuId);
     }
 
 }

@@ -60,4 +60,11 @@ public class SkuApiController {
         return Result.ok(pageModel);
     }
 
+    //更新商品的热度
+    @GetMapping("/inner/incrHotScore/{skuId}")
+    public Boolean incrHotScore(@PathVariable Long skuId) {
+        skuService.incrHotScore(skuId);
+        return true;
+    }
+
 }
