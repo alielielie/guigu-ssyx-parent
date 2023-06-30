@@ -2,6 +2,7 @@ package com.atguigu.ssyx.activity.mapper;
 
 import com.atguigu.ssyx.model.activity.ActivityInfo;
 import com.atguigu.ssyx.model.activity.ActivityRule;
+import com.atguigu.ssyx.model.activity.ActivitySku;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -22,4 +23,7 @@ public interface ActivityInfoMapper extends BaseMapper<ActivityInfo> {
 
     //根据skuId进行查询，查询sku对应的活动里面的规则列表
     List<ActivityRule> findActivityRule(@Param("skuId") Long skuId);
+
+    //根据所有的skuId获取到参与的sku
+    List<ActivitySku> selectCartActivity(@Param("skuIdList") List<Long> skuIdList);
 }
