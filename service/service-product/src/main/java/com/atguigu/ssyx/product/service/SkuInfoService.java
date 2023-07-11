@@ -54,4 +54,7 @@ public interface SkuInfoService extends IService<SkuInfo> {
 
     //9 验证库存并且锁定库存，保证具备原子性
     Boolean checkAndLock(List<SkuStockLockVo> skuStockLockVoList, String orderNo);
+
+    //扣减库存
+    void minusStock(String orderNo);
 }

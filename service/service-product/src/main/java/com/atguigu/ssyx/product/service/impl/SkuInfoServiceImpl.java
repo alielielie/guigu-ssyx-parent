@@ -297,6 +297,23 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo> impl
         return true;
     }
 
+    //扣减库存
+    @Override
+    public void minusStock(String orderNo) {
+        //从redis获取锁定库存信息
+        List<SkuStockLockVo> skuStockLockVoList = (List<SkuStockLockVo>)redisTemplate.opsForValue().get(RedisConst.SROCK_INFO + orderNo);
+        if (CollectionUtils.isEmpty(skuStockLockVoList)){
+            return ;
+        }
+        //遍历集合，得到每个对象 减库存
+        skuStockLockVoList.forEach(skuStockLockVo -> {
+            baseMapper.minusStock(skuStockLockVo.getSkuId(), skuStockLockVo.getSkuNum());
+        });
+
+        // 解锁库存之后，删除锁定库存的缓存。以防止重复解锁库存
+        redisTemplate.delete(RedisConst.SROCK_INFO + orderNo);
+    }
+
     private void checkLock(SkuStockLockVo skuStockLockVo) {
         //获取锁
         //公平锁

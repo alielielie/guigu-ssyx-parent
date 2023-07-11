@@ -7,7 +7,12 @@ import com.atguigu.ssyx.model.order.OrderInfo;
 import com.atguigu.ssyx.order.service.OrderInfoService;
 import com.atguigu.ssyx.vo.order.OrderConfirmVo;
 import com.atguigu.ssyx.vo.order.OrderSubmitVo;
+import com.atguigu.ssyx.vo.order.OrderUserQueryVo;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.rabbitmq.client.AMQP;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -49,6 +54,29 @@ public class OrderInfoController {
     public Result getOrderInfoById(@PathVariable("orderId") Long orderId){
         OrderInfo orderInfo = orderInfoService.getOrderInfoById(orderId);
         return Result.ok(orderInfo);
+    }
+
+    //根据orderNo查询订单信息
+    @GetMapping("/inner/getOrderInfo/{orderNo}")
+    public OrderInfo getOrderInfo(@PathVariable String orderNo) {
+        OrderInfo OrderInfo = orderInfoService.getOrderInfoByOrderNo(orderNo);
+        return OrderInfo;
+    }
+
+    @ApiOperation(value = "获取用户订单分页列表")
+    @GetMapping("/auth/findUserOrderPage/{page}/{limit}")
+    public Result findUserOrderPage(
+            @ApiParam(name = "page", value = "当前页码", required = true)
+            @PathVariable Long page,
+            @ApiParam(name = "limit", value = "每页记录数", required = true)
+            @PathVariable Long limit,
+            @ApiParam(name = "orderVo", value = "查询对象", required = false)
+                    OrderUserQueryVo orderUserQueryVo) {
+        Long userId = AuthContextHolder.getUserId();
+        orderUserQueryVo.setUserId(userId);
+        Page<OrderInfo> pageParam = new Page<>(page, limit);
+        IPage<OrderInfo> pageModel = orderInfoService.getOrderInfoByUserIdPage(pageParam, orderUserQueryVo);
+        return Result.ok(pageModel);
     }
 
 }
