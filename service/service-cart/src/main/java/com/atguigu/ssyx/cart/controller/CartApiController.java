@@ -116,4 +116,10 @@ public class CartApiController {
         return Result.ok(null);
     }
 
+    //获取当前用户购物车里选中的购物项
+    @GetMapping("/inner/getCartCheckedList/{userId}")
+    public List<CartInfo> getCartCheckedList(@PathVariable("userId") Long userId) {
+        return cartInfoService.getCartCheckedList(userId);
+    }
+
 }

@@ -5,6 +5,7 @@ import com.atguigu.ssyx.model.product.SkuInfo;
 import com.atguigu.ssyx.product.service.CategoryService;
 import com.atguigu.ssyx.product.service.SkuInfoService;
 import com.atguigu.ssyx.vo.product.SkuInfoVo;
+import com.atguigu.ssyx.vo.product.SkuStockLockVo;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -76,6 +77,12 @@ public class ProductInnerController {
     @GetMapping("/inner/getSkuInfoVo/{skuId}")
     public SkuInfoVo getSkuInfoVo(@PathVariable Long skuId) {
         return skuInfoService.getSkuInfoVo(skuId);
+    }
+
+    //9 验证库存并且锁定库存，保证具备原子性
+    @PostMapping("/inner/checkAndLock/{orderNo}")
+    public Boolean checkAndLock(@RequestBody List<SkuStockLockVo> skuStockLockVoList, @PathVariable String orderNo) {
+        return skuInfoService.checkAndLock(skuStockLockVoList, orderNo);
     }
 
 }

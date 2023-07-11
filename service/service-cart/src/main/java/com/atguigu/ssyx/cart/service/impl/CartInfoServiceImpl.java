@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @BelongsProject: guigu-ssyx-parent
@@ -206,6 +207,35 @@ public class CartInfoServiceImpl implements CartInfoService {
         });
         //设置key过期时间
         this.setCartKeyExpire(cartKey);
+    }
+
+    //获取当前用户购物车里选中的购物项
+    @Override
+    public List<CartInfo> getCartCheckedList(Long userId) {
+        String cartKey = this.getCartKey(userId);
+        BoundHashOperations<String, String, CartInfo> boundHashOperations = redisTemplate.boundHashOps(cartKey);
+        List<CartInfo> cartInfoList = boundHashOperations.values();
+        //isChecked = 1 购物项选中
+        List<CartInfo> cartInfoListNew = cartInfoList.stream().filter(
+                cartInfo -> cartInfo.getIsChecked().intValue() == 1
+        ).collect(Collectors.toList());
+        return cartInfoListNew;
+    }
+
+    //根据用户id删除选中的购物车中的记录
+    @Override
+    public void deleteCartChecked(Long userId) {
+        //根据用户id查询选中的购物车项
+        List<CartInfo> cartInfoList = this.getCartCheckedList(userId);
+        //查询list集合遍历，得到每个skuId集合
+        List<Long> skuIdList = cartInfoList.stream().map(CartInfo::getSkuId).collect(Collectors.toList());
+        //构建redis中的key值
+        //hash类型 key field-value
+        String cartKey = this.getCartKey(userId);
+        //根据key查询field-value结构
+        BoundHashOperations<String, String, CartInfo> hashOperations = redisTemplate.boundHashOps(cartKey);
+        //根据field（skuId）删除redis数据
+        skuIdList.forEach(skuId -> hashOperations.delete(skuId.toString()));
     }
 
     //设置key过期时间

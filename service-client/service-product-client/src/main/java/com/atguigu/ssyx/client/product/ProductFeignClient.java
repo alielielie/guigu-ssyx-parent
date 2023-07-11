@@ -3,6 +3,7 @@ package com.atguigu.ssyx.client.product;
 import com.atguigu.ssyx.model.product.Category;
 import com.atguigu.ssyx.model.product.SkuInfo;
 import com.atguigu.ssyx.vo.product.SkuInfoVo;
+import com.atguigu.ssyx.vo.product.SkuStockLockVo;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -51,5 +52,11 @@ public interface ProductFeignClient {
     //8 根据skuId获取sku信息
     @GetMapping("/api/product/inner/getSkuInfoVo/{skuId}")
     public SkuInfoVo getSkuInfoVo(@PathVariable Long skuId);
+
+    //9 验证库存并且锁定库存，保证具备原子性
+    @PostMapping("/api/product/inner/checkAndLock/{orderNo}")
+    public Boolean checkAndLock(@RequestBody List<SkuStockLockVo> skuStockLockVoList, @PathVariable("orderNo") String orderNo);
+
+
 
 }

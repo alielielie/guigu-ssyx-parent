@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerIntercept
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * @BelongsProject: guigu-ssyx-parent
@@ -18,6 +19,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @MapperScan("com.atguigu.ssyx.*.mapper")
+@EnableTransactionManagement
 public class MybatisPlusConfig {
 
     /**

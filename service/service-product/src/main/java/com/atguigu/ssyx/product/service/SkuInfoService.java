@@ -4,6 +4,7 @@ package com.atguigu.ssyx.product.service;
 import com.atguigu.ssyx.model.product.SkuInfo;
 import com.atguigu.ssyx.vo.product.SkuInfoQueryVo;
 import com.atguigu.ssyx.vo.product.SkuInfoVo;
+import com.atguigu.ssyx.vo.product.SkuStockLockVo;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -50,4 +51,7 @@ public interface SkuInfoService extends IService<SkuInfo> {
 
     //8 根据skuId获取sku信息
     SkuInfoVo getSkuInfoVo(Long skuId);
+
+    //9 验证库存并且锁定库存，保证具备原子性
+    Boolean checkAndLock(List<SkuStockLockVo> skuStockLockVoList, String orderNo);
 }

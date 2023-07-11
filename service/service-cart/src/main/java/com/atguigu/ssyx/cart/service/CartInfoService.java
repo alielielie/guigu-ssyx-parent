@@ -36,4 +36,10 @@ public interface CartInfoService {
 
     //批量选中
     void batchCheckCart(List<Long> skuIdList, Long userId, Integer isChecked);
+
+    //获取当前用户购物车里选中的购物项
+    List<CartInfo> getCartCheckedList(Long userId);
+
+    //根据用户id删除选中的购物车中的记录
+    void deleteCartChecked(Long userId);
 }
